@@ -1,18 +1,20 @@
-module Main exposing (..)
+port module Main exposing (..)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Deps exposing (..)
+import Core as ULE
+import Json.Encode as JE
 
--- Main
-main = 
-    Browser.element
-        {
-            init = init
-            , view = view
-            , subscriptions = subscriptions
-            , update = update
-        }
+port analytics : JE.Value -> Cmd msg
+
+setFresh : Msg -> Bool
+setFresh msg =
+    case msg of 
+        Init _ ->
+            True
+        _ ->
+            False
 
 -- Init
 init: () -> (Model, Cmd Msg)
@@ -55,43 +57,7 @@ view model =
                 , div[class "Calci"]
                     [
                         displayAdd model.display model.history
-                        , div[style "display" "inline-flex", style "justify-content" "space-evenly"]
-                        [
-                            div[style "display" "flex", style "flex-direction" "column"]
-                                [
-                                    buttonAdd AC "AC"
-                                    , buttonAdd (Number 7) "7"
-                                    , buttonAdd (Number 4) "4"
-                                    , buttonAdd (Number 1) "1"
-                                    , buttonAdd Zero "~"
-                                ]
-
-                            , div[style "display" "flex", style "flex-direction" "column"]
-                                [
-                                    buttonAdd Divide "÷"
-                                    , buttonAdd (Number 8) "8"
-                                    , buttonAdd (Number 5) "5"
-                                    , buttonAdd (Number 2) "2"
-                                    , buttonAdd (Number 0) "0"
-                                ]
-
-                            , div[style "display" "flex", style "flex-direction" "column"]
-                                [ 
-                                    buttonAdd Multiply "x"
-                                    , buttonAdd (Number 9) "9"
-                                    , buttonAdd (Number 6) "6"
-                                    , buttonAdd (Number 3) "3"
-                                    , buttonAdd Point "."
-                                ]
-
-                            , div[style "display" "flex", style "flex-direction" "column"]
-                                [ 
-                                    buttonAdd Zero "~"
-                                    , buttonAdd Subtract "-"
-                                    , buttonAdd Add "+"
-                                    , buttonAddWide Equals "="
-                                ]
-                        ]
+                        , btnContainer 300 400 5 4
                     ] 
             ]
 
@@ -106,6 +72,8 @@ update message model =
             mathOp model calculator.multiply "x"
         Divide ->
             mathOp model calculator.divide "÷"
+        Modulo ->
+            mathOp model calculator.modulo "%"
         Number i ->
             addNumber model i
         Point ->
@@ -116,7 +84,32 @@ update message model =
             allClear model
         Zero ->
             addZero model
+        Decrement ->
+            handleDec model
+        Init _ ->
+            (model,Cmd.none)
 
+-- Subscriptions
 subscriptions: Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+-- Main
+main = 
+    Browser.element
+        {
+            init = ULE.init logger analytics init
+            , view = ULE.view view
+            , subscriptions = ULE.subscriptions subscriptions
+            , update = ULE.update logger analytics update setFresh Nothing Nothing
+        }
+
+logger model = 
+    {
+        display = model.display
+        , history = model.history
+        , op = model.op
+        , mem = model.mem
+        , perform = model.perform
+        , pressedEq = model.pressedEq
+    }
