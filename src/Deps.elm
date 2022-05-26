@@ -23,6 +23,7 @@ type alias Model =
         , mem: Float
         , perform: Bool
         , pressedEq: Bool
+        , pressedOp: Bool
     }
 
 -- Message Var
@@ -49,6 +50,16 @@ type alias Calculator =
     , modulo : Float -> Float -> Float
     }
 
+-- Precision for addition function
+getAdd : Float -> Float -> Float
+getAdd x y = 
+    getFloat(Round.round 5 (x + y))
+
+-- Precision for subtraction function
+getSub : Float -> Float -> Float
+getSub x y = 
+    getFloat(Round.round 5 (x - y))
+
 -- Precision for multiply function
 getMulti : Float -> Float -> Float 
 getMulti x y = 
@@ -62,8 +73,8 @@ getDivide x y =
 -- Functions required
 calculator : Calculator
 calculator =
-    { add = (\x y -> x + y)
-    , subtract = (\x y -> x - y)
+    { add = (\x y -> getAdd x y)
+    , subtract = (\x y -> getSub x y)
     , multiply = (\x y -> getMulti x y)
     , divide = (\x y -> getDivide x y)
     , modulo = (\x y -> Basics.Extra.fractionalModBy y x)
@@ -76,7 +87,7 @@ lstFuncs = [
                 , (Number 7,"7")
                 , (Number 4,"4")
                 , (Number 1,"1")
-                , (Decrement,"")
+                , (Modulo,"%")
 
                 , (Divide,"÷")
                 , (Number 8,"8")
@@ -90,7 +101,7 @@ lstFuncs = [
                 , (Number 3,"3")
                 , (Point,".")
 
-                , (Modulo,"%")
+                , (Decrement,"")
                 , (Subtract,"-")
                 , (Add,"+")
                 , (Equals, "=")
@@ -112,6 +123,8 @@ genBtnsCol idx rows cols pos=
     in  
     if rows <= 0 then []
     else 
+        (genBtnsCol (idx+1) (rows - 1) (cols) (pos+70))
+        ++
         -- For Equals
         if (rows == 1 && cols == 1) then 
             [
@@ -129,11 +142,11 @@ genBtnsCol idx rows cols pos=
                 [Svg.text content]
             ]
             -- For Decrement
-        else if (cols == 4 && rows == 1) then
+        else if (cols == 1 && rows == 4) then
             [
                 rect [class "btn-cols", onClick func, x "0", y ytrans, width "50", height "50", rx "2", ry "2"]
                 []
-                , svg [viewBox "0 0 400 400", transform "translate(7,240)", Svg.Attributes.cursor "pointer"]
+                , svg [viewBox "0 0 80 10", transform "translate(10,-10)", Svg.Attributes.cursor "pointer", width "51", height "51"]
                     [
                         -- Svg for decrement icon
                         Svg.path [d "M10.625,5.09L0,22.09l10.625,17H44.18v-34H10.625z M42.18,37.09H11.734l-9.375-15l9.375-15H42.18V37.09z"]
@@ -158,8 +171,6 @@ genBtnsCol idx rows cols pos=
             ]
             [Svg.text content]
         ] 
-        -- Generate the next button in the column
-    ++ (genBtnsCol (idx+1) (rows - 1) (cols) (pos+70))
          
 
 -- Generates the button grid
@@ -187,11 +198,10 @@ btnContainer w h rows cols =
     div[Html.Attributes.style "display" "flex", Html.Attributes.style "justify-content" "center", Html.Attributes.style "flex-grow" "1"]
         [
             svg [ viewBox "-5 -5 300 400", width wdth, height hght, fill "none", stroke "black", class "btn-container", transform "translate(0,30)"]
-                 [
-                    Svg.g[transform ("translate(5,0)")]
-                        
-                            (genBtns 0 rows cols 0) 
-                 ]
+                    [
+                        Svg.g[transform ("translate(5,0)")]
+                        (genBtns 0 rows cols 0) 
+                    ]
         ]
 
 -- Add Display text
@@ -244,12 +254,14 @@ mathOp model func symb=
     ({
         model | op = func
         , pressedEq = False
-        , history = if (model.pressedEq == False) then model.history ++ model.display ++ " "  ++ (symb) ++ " "
-                    else model.display ++ " "  ++ (symb) ++ " "
+        , history = if (model.pressedEq == False && model.pressedOp == False) then model.history ++ model.display ++ " "  ++ (symb) ++ " "
+                    else if model.pressedOp == False then model.display ++ " "  ++ (symb) ++ " "
+                        else dropRight 2 model.history ++ (symb) ++ " "
         , mem = if (model.perform == False) then getFloat model.display 
                 else getFloat (calc model)
         , perform = True
         , display = ""
+        , pressedOp = True
     }, Cmd.none)
 
 -- Clicks on a number button
@@ -257,6 +269,7 @@ addNumber: Model -> Int -> (Model, Cmd Msg)
 addNumber model i = 
     ({
         model | display = model.display ++ fromInt(i)
+        , pressedOp = False
     }, Cmd.none)
 
 -- Function to append string with '.'
@@ -272,6 +285,7 @@ addPoint model =
     ({
         model | display = if model.display == "" then "0."
                             else  appendStr model.display
+        , pressedOp = False
     }, Cmd.none)
 
 -- To carry out operation
@@ -303,6 +317,8 @@ allClear model =
         , mem = 0
         , op = (\x y -> y)
         , history = ""
+        , pressedEq = False
+        , pressedOp = False
     }, Cmd.none)
 
 -- Click on Zero
@@ -312,6 +328,7 @@ addZero model =
         model | display = if model.display == "" || model.display == "0" then
                             "0"
                             else model.display ++ "0"
+        , pressedOp = False
     }, Cmd.none)
 
 -- Click on Decrement
@@ -321,4 +338,5 @@ handleDec model =
         model | display = if (model.display == "" || model.pressedEq == True) then
                             model.display
                             else dropRight 1 model.display
+        , pressedOp = False
     }, Cmd.none)

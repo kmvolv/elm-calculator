@@ -30,6 +30,7 @@ init _ =
       , mem = 0
       , perform = False
       , pressedEq = False
+      , pressedOp = False
       }
     , Cmd.none
     )
