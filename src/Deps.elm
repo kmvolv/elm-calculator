@@ -115,7 +115,7 @@ genBtnsCol idx rows cols pos=
         -- For Equals
         if (rows == 1 && cols == 1) then 
             [
-                Svg.path [class "btn-wide", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 116 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -116 a 2 2 0 0 1 2 -2")]
+                rect [class "btn-wide", onClick func, x "0", y ytrans, width "50", height "120", rx "2", ry "2"]
                 []
                 , text_ [
                     x "25"
@@ -131,10 +131,11 @@ genBtnsCol idx rows cols pos=
             -- For Decrement
         else if (cols == 4 && rows == 1) then
             [
-                Svg.path [class "btn-cols", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 46 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -46 a 2 2 0 0 1 2 -2")]
+                rect [class "btn-cols", onClick func, x "0", y ytrans, width "50", height "50", rx "2", ry "2"]
                 []
                 , svg [viewBox "0 0 400 400", transform "translate(7,240)", Svg.Attributes.cursor "pointer"]
                     [
+                        -- Svg for decrement icon
                         Svg.path [d "M10.625,5.09L0,22.09l10.625,17H44.18v-34H10.625z M42.18,37.09H11.734l-9.375-15l9.375-15H42.18V37.09z"]
                         []
                         , Svg.polygon [points "18.887,30.797 26.18,23.504 33.473,30.797 34.887,29.383 27.594,22.09 34.887,14.797 33.473,13.383 26.18,20.676 18.887,13.383 17.473,14.797 24.766,22.09 17.473,29.383"]
@@ -144,7 +145,7 @@ genBtnsCol idx rows cols pos=
         else 
             -- For the other buttons
         [
-            Svg.path [class "btn-cols", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 46 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -46 a 2 2 0 0 1 2 -2")]
+            rect [class "btn-cols", onClick func, x "0", y ytrans, width "50", height "50", rx "2", ry "2"]
             []
             , text_ [
                 x "25"
@@ -202,10 +203,10 @@ displayAdd str memstr =
             [ 
                 Svg.g[] 
                     [
-                    Svg.path [ d "M-20 20h 140a 2 2 0 0 1 2 2v 50a 2 2 0 0 1 -2 2h -140a 2 2 0 0 1 -2 -2v -50a 2 2 0 0 1 2 -2"]
+                    rect [x "-20", y "20", rx "2", ry "2", width "142", height "52"]
                     []
                     , text_ [
-                        x "-15"
+                        x "-10"
                         , y "30"
                         , fill "black"
                         , textAnchor "middle"
@@ -217,8 +218,8 @@ displayAdd str memstr =
                     ]
                     [Html.text (memstr)]
                     , text_ [
-                        x "120"
-                        , y "60"
+                        x "118"
+                        , y "58"
                         , fill "black"
                         , textAnchor "middle"
                         , dominantBaseline "central"
