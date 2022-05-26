@@ -26,7 +26,19 @@ type alias Model =
     }
 
 -- Message Var
-type Msg = Add | Subtract | Multiply | Divide | Modulo | Equals | Number Int | Point | AC | Zero | Decrement | Init Int
+type Msg 
+    = Add 
+    | Subtract 
+    | Multiply 
+    | Divide 
+    | Modulo 
+    | Equals 
+    | Number Int 
+    | Point 
+    | AC 
+    | Zero 
+    | Decrement 
+    | Init Int
 
 -- Function Container 
 type alias Calculator =
@@ -37,10 +49,12 @@ type alias Calculator =
     , modulo : Float -> Float -> Float
     }
 
+-- Precision for multiply function
 getMulti : Float -> Float -> Float 
 getMulti x y = 
     getFloat(Round.round 5 (x * y))
 
+-- Precision for divide function
 getDivide : Float -> Float -> Float
 getDivide x y = 
     getFloat(Round.round 5 (x / y))
@@ -55,7 +69,7 @@ calculator =
     , modulo = (\x y -> Basics.Extra.fractionalModBy y x)
     }
 
-
+-- List of button funcs to be added
 lstFuncs: List((Msg,String))
 lstFuncs = [
                 (AC,"AC")
@@ -82,10 +96,12 @@ lstFuncs = [
                 , (Equals, "=")
             ]
 
+-- Get item at given position of list
 getAtpos: Int -> (Msg,String)
 getAtpos pos = 
     Maybe.withDefault (Zero,"") (getAt pos lstFuncs)
 
+-- Generates a column of buttons
 genBtnsCol: Int -> Int -> Int -> Int -> List(Svg Msg)
 genBtnsCol idx rows cols pos= 
     let
@@ -94,7 +110,7 @@ genBtnsCol idx rows cols pos=
         func = first (getAtpos idx)
         content = second (getAtpos idx)
     in  
-    if cols <= 0 then []
+    if rows <= 0 then []
     else 
         if (rows == 1 && cols == 1) then 
             [
@@ -111,11 +127,11 @@ genBtnsCol idx rows cols pos=
                 ]
                 [Svg.text content]
             ]
-        else if (rows == 4 && cols == 1) then
+        else if (cols == 4 && rows == 1) then
             [
                 Svg.path [class "btn-cols", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 46 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -46 a 2 2 0 0 1 2 -2")]
                 []
-                , svg [viewBox "0 0 400 400", transform "translate(7,240)"]
+                , svg [viewBox "0 0 400 400", transform "translate(7,240)", Svg.Attributes.cursor "pointer"]
                     [
                         Svg.path [d "M10.625,5.09L0,22.09l10.625,17H44.18v-34H10.625z M42.18,37.09H11.734l-9.375-15l9.375-15H42.18V37.09z"]
                         []
@@ -137,21 +153,24 @@ genBtnsCol idx rows cols pos=
             ]
             [Svg.text content]
         ] 
-    ++ (genBtnsCol (idx+1) (rows) (cols - 1) (pos+70))
+    ++ (genBtnsCol (idx+1) (rows - 1) (cols) (pos+70))
          
 
-genBtns: Int -> Int ->Int -> Int -> List(Svg Msg)
+-- Generates the button grid
+genBtns: Int -> Int -> Int -> Int -> List(Svg Msg)
 genBtns idx rows cols pos = 
     let
         xtrans = fromInt(pos)
     in
     if cols <= 0 then []
-    else [
-        if cols == 1 then Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx cols (rows - 1) 0)
-         else Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx cols rows 0)
-        ] ++ genBtns (idx + rows) (rows) (cols - 1) (pos + 70)
+    else 
+        genBtns (idx + rows) (rows) (cols - 1) (pos + 70) ++
+        [
+            if cols == 1 then Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx (rows - 1) cols 0)
+            else Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx rows cols 0)
+        ] 
 
-
+-- Add Buttons of calc
 btnContainer: Int -> Int -> Int -> Int -> Html Msg
 btnContainer w h rows cols = 
     let
@@ -161,14 +180,15 @@ btnContainer w h rows cols =
     
     div[Html.Attributes.style "display" "flex", Html.Attributes.style "justify-content" "center", Html.Attributes.style "flex-grow" "1"]
         [
-            svg [ viewBox "-5 -5 300 400", width wdth, height hght, fill "none", stroke "black", class "btn-container", transform "translate(0,20)"]
+            svg [ viewBox "-5 -5 300 400", width wdth, height hght, fill "none", stroke "black", class "btn-container", transform "translate(0,30)"]
                  [
                     Svg.g[transform ("translate(5,0)")]
                         
-                            (genBtns 0 rows cols 0)
+                            (genBtns 0 rows cols 0) 
                  ]
         ]
 
+-- Add Display text
 displayAdd: String -> String -> Html Msg
 displayAdd str memstr = 
     div[class "Display"]
@@ -260,7 +280,8 @@ handleEqual: Model -> (Model, Cmd Msg)
 handleEqual model = 
     ({
         model | display = calc model
-        , history = model.history ++ model.display
+        , history = if model.pressedEq == False then model.history ++ model.display
+                    else model.display
         , perform = False
         , mem = if model.perform == True then getFloat(model.display)
                 else model.mem
@@ -287,6 +308,7 @@ addZero model =
                             else model.display ++ "0"
     }, Cmd.none)
 
+-- Click on Decrement
 handleDec: Model -> (Model, Cmd Msg)
 handleDec model = 
     ({

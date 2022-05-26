@@ -14,7 +14,7 @@ body {
     flex-wrap: wrap-reverse;
     justify-content: center;
     border: 2px solid #2596be;
-    border-radius: 5vh;
+    border-radius: 3vh;
     padding-left: 1.8vh;
     background-color: rgb(231, 231, 231);
 }
@@ -48,6 +48,7 @@ body {
 }
 
 .btn-wide {
+    cursor: pointer;
     transition: fill 0.3s ease;
     fill: rgba(77,138,200,0.5);
     stroke-width: 0.3%;
