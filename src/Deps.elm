@@ -112,6 +112,7 @@ genBtnsCol idx rows cols pos=
     in  
     if rows <= 0 then []
     else 
+        -- For Equals
         if (rows == 1 && cols == 1) then 
             [
                 Svg.path [class "btn-wide", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 116 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -116 a 2 2 0 0 1 2 -2")]
@@ -127,6 +128,7 @@ genBtnsCol idx rows cols pos=
                 ]
                 [Svg.text content]
             ]
+            -- For Decrement
         else if (cols == 4 && rows == 1) then
             [
                 Svg.path [class "btn-cols", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 46 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -46 a 2 2 0 0 1 2 -2")]
@@ -139,7 +141,9 @@ genBtnsCol idx rows cols pos=
                         []
                     ]
             ]
-        else [
+        else 
+            -- For the other buttons
+        [
             Svg.path [class "btn-cols", onClick func, d (" M 0 "++ (ytrans) ++" h 50 a 2 2 0 0 1 2 2 v 46 a 2 2 0 0 1 -2 2 h -50 a 2 2 0 0 1 -2 -2 v -46 a 2 2 0 0 1 2 -2")]
             []
             , text_ [
@@ -153,6 +157,7 @@ genBtnsCol idx rows cols pos=
             ]
             [Svg.text content]
         ] 
+        -- Generate the next button in the column
     ++ (genBtnsCol (idx+1) (rows - 1) (cols) (pos+70))
          
 
@@ -166,7 +171,7 @@ genBtns idx rows cols pos =
     else 
         genBtns (idx + rows) (rows) (cols - 1) (pos + 70) ++
         [
-            if cols == 1 then Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx (rows - 1) cols 0)
+            if cols == 1 then Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx (rows - 1) cols 0) 
             else Svg.g[transform ("translate("++ xtrans ++",0)")](genBtnsCol idx rows cols 0)
         ] 
 
