@@ -1,25 +1,9 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Browser
-import Core as ULE
 import Deps exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Json.Encode as JE
-
-
-port analytics : JE.Value -> Cmd msg
-
-
-setFresh : Msg -> Bool
-setFresh msg =
-    case msg of
-        Init _ ->
-            True
-
-        _ ->
-            False
-
 
 -- Init
 init : () -> ( Model, Cmd Msg )
@@ -105,29 +89,11 @@ update message model =
         Init _ ->
             ( model, Cmd.none )
 
-
--- Subscriptions
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-
 -- Main
 main =
     Browser.element
-        { init = ULE.init logger analytics init
-        , view = ULE.view view
-        , subscriptions = ULE.subscriptions subscriptions
-        , update = ULE.update logger analytics update setFresh Nothing Nothing
+        { init = init
+        , view = view
+        , subscriptions = \_ -> Sub.none
+        , update = update
         }
-
-
--- Logger
-logger model =
-    { display = model.display
-    , history = model.history
-    , op = model.op
-    , mem = model.mem
-    , perform = model.perform
-    , pressedEq = model.pressedEq
-    }

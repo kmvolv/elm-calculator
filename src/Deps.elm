@@ -141,7 +141,7 @@ genBtnsCol idx rows cols pos=
                 ]
                 [Svg.text content]
             ]
-            -- For Decrement
+        -- For Decrement
         else if (cols == 1 && rows == 4) then
             [
                 rect [class "btn-cols", onClick func, x "0", y ytrans, width "50", height "50", rx "2", ry "2"]
@@ -204,7 +204,7 @@ btnContainer w h rows cols =
                     ]
         ]
 
--- Add Display text
+-- Add Display and Text content
 displayAdd: String -> String -> Html Msg
 displayAdd str memstr = 
     div[class "Display"]
