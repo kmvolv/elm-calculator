@@ -219,7 +219,6 @@ displayAdd str memstr =
                         x "-10"
                         , y "30"
                         , fill "black"
-                        , textAnchor "middle"
                         , dominantBaseline "central"
                         , fontSize "10px"
                         , textAnchor "start"
@@ -231,7 +230,6 @@ displayAdd str memstr =
                         x "118"
                         , y "58"
                         , fill "black"
-                        , textAnchor "middle"
                         , dominantBaseline "central"
                         , fontSize "20px"
                         , textAnchor "end"
@@ -250,7 +248,7 @@ getFloat str =
 
 -- Clicks on an operation button
 mathOp: Model -> (Float -> Float -> Float) -> String -> (Model, Cmd Msg)
-mathOp model func symb= 
+mathOp model func symb = 
     ({
         model | op = func
         , pressedEq = False
@@ -258,7 +256,8 @@ mathOp model func symb=
                     else if model.pressedOp == False then model.display ++ " "  ++ (symb) ++ " "
                         else dropRight 2 model.history ++ (symb) ++ " "
         , mem = if (model.perform == False) then getFloat model.display 
-                else getFloat (calc model)
+                else if model.pressedOp == False then getFloat (calc model)
+                else model.mem
         , perform = True
         , display = ""
         , pressedOp = True
