@@ -17,6 +17,7 @@ body {
     border-radius: 3vh;
     padding-left: 1.8vh;
     background-color: rgb(231, 231, 231);
+    /* height: 40vh; */
 }
 
 .Display {
@@ -73,7 +74,7 @@ body {
     stroke: #628AB5;
     stroke-width: 0.5px;
     font-family: 'BIZ UDPGothic', sans-serif;
-    font-size: 0.8vh;
+    font-size: 2vh;
 }
 
 .disp-lower {
